@@ -173,11 +173,32 @@ export const handlers = [
     const pageSizeParam = url.searchParams.get('pageSize') ?? '10';
     const page = Number(pageParam) || 1;
     const pageSize = Number(pageSizeParam) || 10;
-    // De momento no aplicamos filtros, solo paginación sobre todo el array
-    const total = stockMoves.length;
+    // aplicamos filtros
+    const product = url.searchParams.get('product') ?? '';
+    const warehouse = url.searchParams.get('warehouse') ?? '';
+    const type = url.searchParams.get('type') ?? '';
+
+    let filtered = stockMoves;
+    // Filtro por producto (texto parcial, case-insensitive)
+    if (product) {
+      const search = product.toLowerCase();
+      filtered = filtered.filter((m) =>
+        m.product.toLowerCase().includes(search),
+      );
+    }
+    // Filtro por bodega (igualdad exacta)
+    if (warehouse) {
+      filtered = filtered.filter((m) => m.warehouse === warehouse);
+    }
+    // Filtro por tipo (igualdad exacta)
+    if (type) {
+      filtered = filtered.filter((m) => m.type === type);
+    }
+
+    const total = filtered.length;
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
-    const itemsPage = stockMoves.slice(start, end);
+    const itemsPage = filtered.slice(start, end);
     return HttpResponse.json({
       items: itemsPage,
       total,

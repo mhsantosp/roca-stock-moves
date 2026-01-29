@@ -10,11 +10,27 @@ interface StockMovesResponse {
   pageSize: number;
 }
 
-async function fetchStockMoves(page: number, pageSize: number): Promise<StockMovesResponse> {
+async function fetchStockMoves(
+  page: number,
+  pageSize: number,
+  product: string,
+  warehouse: string,
+  type: string,
+): Promise<StockMovesResponse> {
   const params = new URLSearchParams({
     page: String(page),
     pageSize: String(pageSize),
   });
+
+  if (product) {
+    params.set('product', product);
+  }
+  if (warehouse) {
+    params.set('warehouse', warehouse);
+  }
+  if (type) {
+    params.set('type', type);
+  }
 
   const response = await fetch(`/stock-moves?${params.toString()}`);
 
@@ -28,9 +44,14 @@ async function fetchStockMoves(page: number, pageSize: number): Promise<StockMov
 export function StockMovesListPage() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
+  const [productFilter, setProductFilter] = useState('');
+  const [warehouseFilter, setWarehouseFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+
   const { data: rawData, isLoading, isError, error } = useQuery<StockMovesResponse>({
-    queryKey: ['stock-moves', page, pageSize],
-    queryFn: () => fetchStockMoves(page, pageSize),
+    queryKey: ['stock-moves', page, pageSize, productFilter, warehouseFilter, typeFilter],
+    queryFn: () =>
+      fetchStockMoves(page, pageSize, productFilter, warehouseFilter, typeFilter),
   });
   // Hacemos un cast explícito para que TS deje de tratarlo como {}
   const data = rawData as StockMovesResponse | undefined;
@@ -55,6 +76,67 @@ export function StockMovesListPage() {
   return (
     <div style={{ padding: '1rem' }}>
       <h1>Movimientos de Inventario</h1>
+      
+      <form
+        style={{
+          display: 'flex',
+          gap: '1rem',
+          alignItems: 'flex-end',
+          marginTop: '1rem',
+          marginBottom: '1rem',
+        }}
+        onSubmit={(e) => e.preventDefault()}
+      >
+        <div>
+          <label>
+            Producto
+            <input
+              type="text"
+              value={productFilter}
+              onChange={(e) => {
+                setProductFilter(e.target.value);
+                setPage(1);
+              }}
+            />
+          </label>
+        </div>
+
+        <div>
+          <label>
+            Bodega
+            <select
+              value={warehouseFilter}
+              onChange={(e) => {
+                setWarehouseFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">Todas</option>
+              <option value="Bodega Norte">Bodega Norte</option>
+              <option value="Bodega Sur">Bodega Sur</option>
+              <option value="Bodega Central">Bodega Central</option>
+            </select>
+          </label>
+        </div>
+
+        <div>
+          <label>
+            Tipo
+            <select
+              value={typeFilter}
+              onChange={(e) => {
+                setTypeFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">Todos</option>
+              <option value="IN">IN</option>
+              <option value="OUT">OUT</option>
+              <option value="ADJUST">ADJUST</option>
+            </select>
+          </label>
+        </div>
+      </form>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
         <thead>
