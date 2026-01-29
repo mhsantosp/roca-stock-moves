@@ -175,7 +175,7 @@ export function StockMoveDetailPage() {
         ← Volver al listado
       </button>
 
-      <h1>Detalle de Movimiento</h1>
+      <h2>Detalle de Movimiento</h2>
 
       <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
         <p><strong>ID:</strong> {data.id}</p>

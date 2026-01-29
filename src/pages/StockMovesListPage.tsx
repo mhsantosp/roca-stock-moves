@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import type { StockMove } from '../mocks/handlers';
 import { useState } from 'react';
+import { useAuth } from '../auth/AuthContext';
 
 interface StockMovesResponse {
   items: StockMove[];
@@ -42,6 +43,8 @@ async function fetchStockMoves(
 }
 
 export function StockMovesListPage() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = Number(searchParams.get('page') ?? '1') || 1;
   const initialProduct = searchParams.get('product') ?? '';
@@ -80,7 +83,18 @@ export function StockMovesListPage() {
 
   return (
     <div style={{ padding: '1rem' }}>
-      <h1>Movimientos de Inventario</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>Movimientos de Inventario</h2>
+        <button
+          type="button"
+          onClick={() => {
+            logout();
+            navigate('/login', { replace: true });
+          }}
+        >
+          Salir
+        </button>
+      </div>
       
       <form
         style={{
