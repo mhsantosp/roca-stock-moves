@@ -30,6 +30,123 @@ const stockMoves: StockMove[] = [
     type: 'OUT',
     quantity: 20,
     reference: 'Venta cliente X',
+  },
+  {
+    id: '3',
+    date: '2025-01-03',
+    product: 'Producto C',
+    warehouse: 'Bodega Norte',
+    type: 'ADJUST',
+    quantity: -5,
+    reference: 'Ajuste inventario',
+  },
+  {
+    id: '4',
+    date: '2025-01-04',
+    product: 'Producto A',
+    warehouse: 'Bodega Central',
+    type: 'OUT',
+    quantity: 15,
+    reference: 'Salida a sucursal',
+  },
+  {
+    id: '5',
+    date: '2025-01-05',
+    product: 'Producto D',
+    warehouse: 'Bodega Norte',
+    type: 'IN',
+    quantity: 200,
+    reference: 'Compra proveedor Y',
+  },
+  {
+    id: '6',
+    date: '2025-01-06',
+    product: 'Producto B',
+    warehouse: 'Bodega Sur',
+    type: 'ADJUST',
+    quantity: 3,
+    reference: 'Reconteo físico',
+  },
+  {
+    id: '7',
+    date: '2025-01-07',
+    product: 'Producto E',
+    warehouse: 'Bodega Central',
+    type: 'IN',
+    quantity: 50,
+    reference: 'Ingreso promoción',
+  },
+  {
+    id: '8',
+    date: '2025-01-08',
+    product: 'Producto C',
+    warehouse: 'Bodega Norte',
+    type: 'OUT',
+    quantity: 30,
+    reference: 'Salida orden 123',
+  },
+  {
+    id: '9',
+    date: '2025-01-09',
+    product: 'Producto A',
+    warehouse: 'Bodega Sur',
+    type: 'OUT',
+    quantity: 10,
+    reference: 'Devolución cliente',
+  },
+  {
+    id: '10',
+    date: '2025-01-10',
+    product: 'Producto D',
+    warehouse: 'Bodega Central',
+    type: 'IN',
+    quantity: 80,
+    reference: 'Reposición stock',
+  },
+  {
+    id: '11',
+    date: '2025-01-11',
+    product: 'Producto E',
+    warehouse: 'Bodega Norte',
+    type: 'OUT',
+    quantity: 25,
+    reference: 'Transferencia interna',
+  },
+  {
+    id: '12',
+    date: '2025-01-12',
+    product: 'Producto B',
+    warehouse: 'Bodega Sur',
+    type: 'IN',
+    quantity: 60,
+    reference: 'Compra urgente',
+  },
+  {
+    id: '13',
+    date: '2025-01-13',
+    product: 'Producto C',
+    warehouse: 'Bodega Central',
+    type: 'ADJUST',
+    quantity: -2,
+    reference: 'Pérdida por daño',
+  },
+  {
+    id: '14',
+    date: '2025-01-14',
+    product: 'Producto A',
+    warehouse: 'Bodega Norte',
+    type: 'IN',
+    quantity: 120,
+    reference: 'Ingreso campaña',
+  },
+  {
+    id: '15',
+    date: '2025-01-15',
+    product: 'Producto D',
+    warehouse: 'Bodega Sur',
+    type: 'OUT',
+    quantity: 40,
+    reference: 'Salida mayorista',
   }
 ];
 
@@ -51,12 +168,21 @@ export const handlers = [
 
   // GET /stock-moves
   http.get('/stock-moves', ({ request }) => {
-    // Lógica de filtros y paginación la completamos en el siguiente paso
+    const url = new URL(request.url);
+    const pageParam = url.searchParams.get('page') ?? '1';
+    const pageSizeParam = url.searchParams.get('pageSize') ?? '10';
+    const page = Number(pageParam) || 1;
+    const pageSize = Number(pageSizeParam) || 10;
+    // De momento no aplicamos filtros, solo paginación sobre todo el array
+    const total = stockMoves.length;
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const itemsPage = stockMoves.slice(start, end);
     return HttpResponse.json({
-      items: stockMoves,
-      total: stockMoves.length,
-      page: 1,
-      pageSize: stockMoves.length,
+      items: itemsPage,
+      total,
+      page,
+      pageSize,
     });
   }),
 
