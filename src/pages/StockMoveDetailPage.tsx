@@ -55,28 +55,84 @@ export function StockMoveDetailPage() {
 
   const mutation = useMutation({
     mutationFn: patchStockMoveReference,
-    onSuccess: (updated) => {
-      setSuccessMessage('Referencia actualizada correctamente.');
-      // Actualizar el cache del detalle
-      queryClient.setQueryData<StockMove>(['stock-move', updated.id], updated);
-      // Invalidar listado para que se refleje el cambio
-      queryClient.invalidateQueries({ queryKey: ['stock-moves'] });
+    // Optimistic update
+    onMutate: async ({ id, reference }) => {
+      setFormError(null);
+      setSuccessMessage(null);
+
+      // Cancelar queries en curso relacionadas
+      await queryClient.cancelQueries({ queryKey: ['stock-move', id] });
+      await queryClient.cancelQueries({ queryKey: ['stock-moves'] });
+
+      // Snapshot del detalle previo
+      const previousDetail = queryClient.getQueryData<StockMove>(['stock-move', id]);
+
+      // Snapshot de todas las listas de stock-moves en cache
+      const previousLists = queryClient.getQueriesData<{
+        items: StockMove[];
+        total: number;
+        page: number;
+        pageSize: number;
+      }>({ queryKey: ['stock-moves'] });
+
+      // Actualizar detalle en cache
+      if (previousDetail) {
+        queryClient.setQueryData<StockMove>(['stock-move', id], {
+          ...previousDetail,
+          reference,
+        });
+      }
+
+      // Actualizar todas las listas que contengan ese id
+      previousLists.forEach(([key, value]) => {
+        if (!value) return;
+        const updatedItems = value.items.map((item) =>
+          item.id === id ? { ...item, reference } : item,
+        );
+        queryClient.setQueryData(key, { ...value, items: updatedItems });
+      });
+
+      // Devolver contexto para poder revertir en onError
+      return { previousDetail, previousLists };
     },
-    onError: (err: unknown) => {
+    onError: (err: unknown, _variables, context) => {
+      // Revertir detalle
+      if (context?.previousDetail) {
+        queryClient.setQueryData<StockMove>(
+          ['stock-move', context.previousDetail.id],
+          context.previousDetail,
+        );
+      }
+
+      // Revertir listas
+      if (context?.previousLists) {
+        context.previousLists.forEach(([key, value]) => {
+          queryClient.setQueryData(key, value);
+        });
+      }
+
       if (err instanceof Error) {
         setFormError(err.message);
       } else {
         setFormError('Error al actualizar la referencia.');
       }
     },
+    onSuccess: () => {
+      setSuccessMessage('Referencia actualizada correctamente.');
+    },
+    onSettled: (_data, _error, variables) => {
+      // Asegurar sincronización final con el servidor
+      queryClient.invalidateQueries({ queryKey: ['stock-move', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['stock-moves'] });
+    },
   });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (data && data.reference !== reference) {
+    if (data) {
       setReference(data.reference);
     }
-  }, [data, reference]);
+  }, [data]);
 
   if (!id) {
     return <div style={{ padding: '1rem' }}>ID de movimiento no proporcionado.</div>;

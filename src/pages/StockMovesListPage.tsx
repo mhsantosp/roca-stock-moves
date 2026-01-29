@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import type { StockMove } from '../mocks/handlers';
 import { useState } from 'react';
 
@@ -42,11 +42,16 @@ async function fetchStockMoves(
 }
 
 export function StockMovesListPage() {
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialPage = Number(searchParams.get('page') ?? '1') || 1;
+  const initialProduct = searchParams.get('product') ?? '';
+  const initialWarehouse = searchParams.get('warehouse') ?? '';
+  const initialType = searchParams.get('type') ?? '';
+  const [page, setPage] = useState(initialPage);
   const pageSize = 10;
-  const [productFilter, setProductFilter] = useState('');
-  const [warehouseFilter, setWarehouseFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
+  const [productFilter, setProductFilter] = useState(initialProduct);
+  const [warehouseFilter, setWarehouseFilter] = useState(initialWarehouse);
+  const [typeFilter, setTypeFilter] = useState(initialType);
 
   const { data: rawData, isLoading, isError, error } = useQuery<StockMovesResponse>({
     queryKey: ['stock-moves', page, pageSize, productFilter, warehouseFilter, typeFilter],
@@ -94,8 +99,21 @@ export function StockMovesListPage() {
               type="text"
               value={productFilter}
               onChange={(e) => {
-                setProductFilter(e.target.value);
+                const value = e.target.value;
+                setProductFilter(value);
                 setPage(1);
+                setSearchParams((prev) => {
+                  const params = new URLSearchParams(prev);
+                  params.set('page', '1');
+                  if (value) {
+                    params.set('product', value);
+                  } else {
+                    params.delete('product');
+                  }
+                  if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
+                  if (typeFilter) params.set('type', typeFilter); else params.delete('type');
+                  return params;
+                });
               }}
             />
           </label>
@@ -107,8 +125,21 @@ export function StockMovesListPage() {
             <select
               value={warehouseFilter}
               onChange={(e) => {
-                setWarehouseFilter(e.target.value);
+                const value = e.target.value;
+                setWarehouseFilter(value);
                 setPage(1);
+                setSearchParams((prev) => {
+                  const params = new URLSearchParams(prev);
+                  params.set('page', '1');
+                  if (productFilter) params.set('product', productFilter); else params.delete('product');
+                  if (value) {
+                    params.set('warehouse', value);
+                  } else {
+                    params.delete('warehouse');
+                  }
+                  if (typeFilter) params.set('type', typeFilter); else params.delete('type');
+                  return params;
+                });
               }}
             >
               <option value="">Todas</option>
@@ -125,8 +156,21 @@ export function StockMovesListPage() {
             <select
               value={typeFilter}
               onChange={(e) => {
-                setTypeFilter(e.target.value);
+                const value = e.target.value;
+                setTypeFilter(value);
                 setPage(1);
+                setSearchParams((prev) => {
+                  const params = new URLSearchParams(prev);
+                  params.set('page', '1');
+                  if (productFilter) params.set('product', productFilter); else params.delete('product');
+                  if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
+                  if (value) {
+                    params.set('type', value);
+                  } else {
+                    params.delete('type');
+                  }
+                  return params;
+                });
               }}
             >
               <option value="">Todos</option>
@@ -169,7 +213,18 @@ export function StockMovesListPage() {
       <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <button
           type="button"
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          onClick={() => {
+            const newPage = Math.max(page - 1, 1);
+            setPage(newPage);
+            setSearchParams((prev) => {
+              const params = new URLSearchParams(prev);
+              params.set('page', String(newPage));
+              if (productFilter) params.set('product', productFilter); else params.delete('product');
+              if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
+              if (typeFilter) params.set('type', typeFilter); else params.delete('type');
+              return params;
+            });
+          }}
           disabled={page === 1}
         >
           Anterior
@@ -181,7 +236,16 @@ export function StockMovesListPage() {
           type="button"
           onClick={() => {
             const totalPages = Math.ceil(data.total / data.pageSize);
-            setPage((prev) => Math.min(prev + 1, totalPages));
+            const newPage = Math.min(page + 1, totalPages);
+            setPage(newPage);
+            setSearchParams((prev) => {
+              const params = new URLSearchParams(prev);
+              params.set('page', String(newPage));
+              if (productFilter) params.set('product', productFilter); else params.delete('product');
+              if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
+              if (typeFilter) params.set('type', typeFilter); else params.delete('type');
+              return params;
+            });
           }}
           disabled={data.items.length === 0 || data.page >= Math.ceil(data.total / data.pageSize)}
         >
