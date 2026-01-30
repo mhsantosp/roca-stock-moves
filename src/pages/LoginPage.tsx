@@ -1,3 +1,14 @@
+/**
+ * Página de login de la aplicación.
+ *
+ * Responsabilidades principales:
+ * - Mostrar un formulario sencillo de usuario/contraseña.
+ * - Enviar las credenciales a POST /auth/login (API mock con MSW).
+ * - Guardar el token devuelto mediante AuthContext y redirigir al listado
+ *   de movimientos en caso de éxito.
+ * - Mostrar mensajes de error en caso de credenciales inválidas o errores
+ *   inesperados (por ejemplo, problemas de red).
+ */
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -11,6 +22,10 @@ export function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Maneja el envío del formulario de login. Previene el comportamiento
+  // por defecto del formulario, marca el estado como "enviando" y realiza
+  // la llamada a POST /auth/login. Si la respuesta es correcta, almacena
+  // el token y navega al listado; si falla, muestra el mensaje de error.
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setIsSubmitting(true);

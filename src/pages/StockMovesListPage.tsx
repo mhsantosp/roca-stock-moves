@@ -1,9 +1,23 @@
+/**
+ * Página de listado de movimientos de inventario.
+ *
+ * Responsabilidades principales:
+ * - Consultar la API de movimientos con paginación y filtros (producto, bodega, tipo).
+ * - Sincronizar filtros y página actual con la URL mediante useSearchParams, de modo que
+ *   el estado de la vista sea compartible (copy/paste de la URL).
+ * - Mostrar estados de carga, error, vacío y la tabla de resultados.
+ */
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import type { StockMove } from '../mocks/handlers';
 import { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 
+/**
+ * Forma esperada de la respuesta de la API GET /stock-moves.
+ * Se modela explícitamente para dejar claro que la API soporta paginación
+ * tipo servidor (total + page + pageSize) además de la lista de items.
+ */
 interface StockMovesResponse {
   items: StockMove[];
   total: number;
@@ -11,6 +25,14 @@ interface StockMovesResponse {
   pageSize: number;
 }
 
+/**
+ * Función de ayuda para invocar GET /stock-moves con paginación y filtros.
+ *
+ * No se usa directamente en componentes, sino como queryFn de React Query
+ * en StockMovesListPage. Recibe la página actual, el tamaño de página y
+ * los filtros, construye la query string correspondiente y valida la
+ * respuesta HTTP.
+ */
 async function fetchStockMoves(
   page: number,
   pageSize: number,
@@ -23,6 +45,8 @@ async function fetchStockMoves(
     pageSize: String(pageSize),
   });
 
+  // Solo añadimos parámetros de filtro si tienen valor, para no contaminar
+  // la URL con filtros vacíos.
   if (product) {
     params.set('product', product);
   }
@@ -46,16 +70,24 @@ export function StockMovesListPage() {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Valores iniciales de filtros y página leídos desde la URL. Esto permite
+  // que si el usuario comparte la URL o recarga, la vista se reconstruya
+  // con los mismos criterios de búsqueda y paginación.
   const initialPage = Number(searchParams.get('page') ?? '1') || 1;
   const initialProduct = searchParams.get('product') ?? '';
   const initialWarehouse = searchParams.get('warehouse') ?? '';
   const initialType = searchParams.get('type') ?? '';
+
   const [page, setPage] = useState(initialPage);
   const pageSize = 10;
   const [productFilter, setProductFilter] = useState(initialProduct);
   const [warehouseFilter, setWarehouseFilter] = useState(initialWarehouse);
   const [typeFilter, setTypeFilter] = useState(initialType);
 
+  // Query principal que trae los movimientos desde la API mock.
+  // La queryKey incluye page, pageSize y filtros para que React Query distinga
+  // correctamente entre distintas combinaciones (paginación + filtros).
   const { data: rawData, isLoading, isError, error } = useQuery<StockMovesResponse>({
     queryKey: ['stock-moves', page, pageSize, productFilter, warehouseFilter, typeFilter],
     queryFn: () =>
@@ -64,10 +96,12 @@ export function StockMovesListPage() {
   // Hacemos un cast explícito para que TS deje de tratarlo como {}
   const data = rawData as StockMovesResponse | undefined;
 
+  // Estado de carga mientras la query está en curso.
   if (isLoading) {
     return <div style={{ padding: '1rem' }}>Cargando movimientos...</div>;
   }
 
+  // Estado de error cuando la query falla (por ejemplo, error de red).
   if (isError) {
     return (
       <div style={{ padding: '1rem', color: 'red' }}>
@@ -77,12 +111,14 @@ export function StockMovesListPage() {
     );
   }
 
+  // Estado cuando la API responde correctamente pero no hay datos.
   if (!data || data.items.length === 0) {
     return <div style={{ padding: '1rem' }}>No hay movimientos.</div>;
   }
 
   return (
     <div style={{ padding: '1rem' }}>
+      {/* Cabecera con título de la página y botón de cierre de sesión */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>Movimientos de Inventario</h2>
         <button
@@ -95,7 +131,12 @@ export function StockMovesListPage() {
           Salir
         </button>
       </div>
-      
+
+      {/*
+        Formulario de filtros. No tiene submit "real"; cada cambio en los
+        campos dispara inmediatamente una actualización de estado y de la URL,
+        lo que a su vez provoca un nuevo fetch desde React Query.
+      */}
       <form
         style={{
           display: 'flex',
@@ -196,6 +237,7 @@ export function StockMovesListPage() {
         </div>
       </form>
 
+      {/* Tabla principal con el resultado de la búsqueda */}
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
         <thead>
           <tr>
@@ -224,6 +266,7 @@ export function StockMovesListPage() {
           ))}
         </tbody>
       </table>
+      {/* Controles de paginación tipo servidor */}
       <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <button
           type="button"

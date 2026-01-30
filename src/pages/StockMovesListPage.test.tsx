@@ -1,3 +1,14 @@
+/**
+ * Tests de la página de listado de movimientos.
+ *
+ * Estos tests verifican principalmente el ciclo de vida básico del componente:
+ * - Estado de carga inicial ("Cargando movimientos...").
+ * - Renderizado de la tabla una vez que la "API" responde.
+ *
+ * Al igual que en LoginPage.test.tsx, se mockea global.fetch con vi.spyOn
+ * para controlar la respuesta de la API y desacoplarse de MSW en el entorno
+ * de tests unitarios.
+ */
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -19,6 +30,11 @@ function renderWithClient(ui: React.ReactElement) {
 }
 
 describe('StockMovesListPage', () => {
+  /**
+   * Verifica que la página muestre primero el estado de carga y, tras
+   * recibir datos de la API mockeada, renderice la tabla con al menos
+   * un producto.
+   */
   it('muestra estado de carga y luego la tabla', async () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')

@@ -1,3 +1,10 @@
+/**
+ * Tests de la página de Login.
+ *
+ * No se usa MSW directamente aquí; en su lugar se mockea global.fetch con vi.spyOn
+ * para controlar de forma precisa las respuestas de la "API" y probar el
+ * comportamiento del componente ante distintos escenarios.
+ */
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -5,6 +12,12 @@ import { LoginPage } from './LoginPage';
 import { AuthProvider } from '../auth/AuthContext';
 
 describe('LoginPage', () => {
+  /**
+   * Verifica que se muestre un error cuando se intenta hacer login con credenciales inválidas.
+   *
+   * En este escenario, se mockea la respuesta de la API para que devuelva un error de credenciales inválidas.
+   * Luego, se verifica que se muestre el mensaje de error correspondiente en la pantalla.
+   */
   it('muestra error con credenciales inválidas', async () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
@@ -31,6 +44,14 @@ describe('LoginPage', () => {
     fetchMock.mockRestore();
   });
 
+  /**
+   * Verifica que se haga login exitoso y se navegue al listado después de un login exitoso.
+   *
+   * En este escenario, se mockea la respuesta de la API para que devuelva un token de autenticación válido.
+   * Luego, se verifica que se navegue al listado después de hacer clic en el botón de login.
+   *
+   * Este test se deja como referencia (skip) para ilustrar cómo se podría comprobar la navegación al listado después de un login exitoso.
+   */
   it.skip('hace login exitoso y navega al listado', async () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
