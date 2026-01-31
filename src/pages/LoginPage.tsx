@@ -41,40 +41,54 @@ export function LoginPage() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '2rem auto' }}>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Usuario
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </label>
+    <div className="page-center">
+      <div className="login-layout card login-card">
+        <div className="login-illustration">
+          {/* Imagen alusiva a inventario/almacén. Debe ubicarse en public/images/login-warehouse.svg */}
+          <img src="/images/login-warehouse.svg" alt="Gestión de inventario" />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Contraseña
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </label>
-        </div>
-        {errorMessage && (
-          <div style={{ color: 'red', marginBottom: '1rem' }}>
-            {errorMessage}
+        <div className="card-body">
+          <div className="card-header">
+            <h1 className="card-title">Login</h1>
+            <p className="page-subtitle">
+              Accede a la aplicación de movimientos de inventario usando las
+              credenciales de prueba.
+            </p>
           </div>
-        )}
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
+          <form onSubmit={handleSubmit} className="form">
+            <div className="form-field">
+              <label className="form-label">
+                Usuario
+                <input
+                  className="form-input"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </label>
+            </div>
+            <div className="form-field">
+              <label className="form-label">
+                Contraseña
+                <input
+                  className="form-input"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </label>
+            </div>
+            {errorMessage && (
+              <div className="form-error alert-error">{errorMessage}</div>
+            )}
+            <button className="btn-primary" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

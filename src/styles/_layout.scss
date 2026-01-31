@@ -1,0 +1,140 @@
+@use "./variables" as v;
+@use "./mixins" as m;
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: v.$font-base;
+  background-color: v.$color-bg;
+  /* Imagen de fondo para la pantalla de login y resto de la app */
+  background-image: url("/images/background_login.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  color: v.$color-text-main;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: v.$spacing-xl v.$spacing-md;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: v.$spacing-lg;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.page-subtitle {
+  margin-top: v.$spacing-xs;
+  color: v.$color-text-muted;
+  font-size: 1rem;
+  margin-bottom: 1.8rem;
+  font-weight: 500;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+}
+
+.page-center {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: v.$spacing-xl v.$spacing-md;
+  box-sizing: border-box;
+}
+
+.card {
+  /* Card translúcida similar a la maqueta de login */
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  padding: v.$spacing-xl;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
+.card-header {
+  margin-bottom: v.$spacing-md;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+}
+
+.login-layout {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xl;
+
+  /* En móviles la card ocupa prácticamente todo el ancho disponible */
+  max-width: 100%;
+
+  @include m.respond-md {
+    /* En pantallas medias/grandes mostramos layout en dos columnas */
+    flex-direction: row;
+    align-items: stretch;
+    max-width: 900px;
+  }
+}
+
+.login-illustration {
+  flex: 1;
+  display: none;
+  justify-content: center;
+
+  /* Solo mostramos la ilustración en pantallas medias/grandes */
+  @include m.respond-md {
+    display: flex;
+  }
+}
+
+.login-illustration img {
+  min-width: 150px;
+  width: 100%;
+  height: auto;
+}
+
+.login-card {
+  flex: 1;
+  width: 100%;
+  max-width: 500px;
+}
+
+.layout-main {
+  padding-bottom: v.$spacing-xl;
+}

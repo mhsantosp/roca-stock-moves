@@ -135,24 +135,26 @@ export function StockMoveDetailPage() {
   }, [data]);
 
   if (!id) {
-    return <div style={{ padding: '1rem' }}>ID de movimiento no proporcionado.</div>;
+    return <div className="page-container">ID de movimiento no proporcionado.</div>;
   }
 
   if (isLoading) {
-    return <div style={{ padding: '1rem' }}>Cargando detalle...</div>;
+    return <div className="page-container">Cargando detalle...</div>;
   }
 
   if (isError) {
     return (
-      <div style={{ padding: '1rem', color: 'red' }}>
-        Error al cargar detalle:{' '}
-        {error instanceof Error ? error.message : 'Error desconocido'}
+      <div className="page-container">
+        <div className="alert-error">
+          Error al cargar detalle:{' '}
+          {error instanceof Error ? error.message : 'Error desconocido'}
+        </div>
       </div>
     );
   }
 
   if (!data) {
-    return <div style={{ padding: '1rem' }}>Movimiento no encontrado.</div>;
+    return <div className="page-container">Movimiento no encontrado.</div>;
   }
 
   const handleSubmit = (event: FormEvent) => {
@@ -170,48 +172,103 @@ export function StockMoveDetailPage() {
   };
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <button type="button" onClick={() => navigate('/stock-moves')}>
+    <div className="page-container">
+      <button
+        className="btn-link"
+        type="button"
+        onClick={() => navigate('/stock-moves')}
+      >
         ← Volver al listado
       </button>
 
-      <h2>Detalle de Movimiento</h2>
-
-      <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-        <p><strong>ID:</strong> {data.id}</p>
-        <p><strong>Fecha:</strong> {data.date}</p>
-        <p><strong>Producto:</strong> {data.product}</p>
-        <p><strong>Bodega:</strong> {data.warehouse}</p>
-        <p><strong>Tipo:</strong> {data.type}</p>
-        <p><strong>Cantidad:</strong> {data.quantity}</p>
+      <div className="page-header layout-main">
+        <div>
+          <h2 className="page-title">Detalle de Movimiento</h2>
+          <p className="page-subtitle">
+            Revisa la información del movimiento y actualiza la referencia asociada.
+          </p>
+        </div>
+        <div className="page-actions">
+          {/* Pequeño icono/imagen alusiva a detalle de documento */}
+          <img
+            src="/images/move-detail.svg"
+            alt="Detalle de movimiento"
+            style={{ width: '48px', height: '48px' }}
+          />
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Referencia
-            <input
-              type="text"
-              value={reference}
-              onChange={(e) => setReference(e.target.value)}
-              disabled={mutation.isLoading}
-              style={{ display: 'block', width: '100%' }}
-            />
-          </label>
+      <div className="detail-layout">
+        <div className="card">
+          <div className="card-body">
+            <div>
+              <div className="detail-section-title">Información general</div>
+              <div className="meta">
+                <div className="meta-item">
+                  <strong>ID:</strong> {data.id}
+                </div>
+                <div className="meta-item">
+                  <strong>Fecha:</strong> {data.date}
+                </div>
+                <div className="meta-item">
+                  <strong>Producto:</strong> {data.product}
+                </div>
+                <div className="meta-item">
+                  <strong>Bodega:</strong> {data.warehouse}
+                </div>
+              </div>
+            </div>
+            <div>
+              <div className="meta">
+                <div className="meta-item">
+                  <strong>Tipo:</strong> {data.type}
+                </div>
+                <div className="meta-item">
+                  <strong>Cantidad:</strong> {data.quantity}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {formError && (
-          <div style={{ color: 'red', marginBottom: '1rem' }}>{formError}</div>
-        )}
+        <div className="card">
+          <div className="card-body">
+            <div className="detail-section-title">Editar referencia</div>
+            <form onSubmit={handleSubmit} className="form">
+              <div className="form-field">
+                <label className="form-label">
+                  Referencia
+                  <input
+                    className="form-input"
+                    type="text"
+                    value={reference}
+                    onChange={(e) => setReference(e.target.value)}
+                    disabled={mutation.isLoading}
+                  />
+                </label>
+                <p className="form-help">
+                  Entre 3 y 60 caracteres. Por ejemplo: código de orden, número de
+                  documento, etc.
+                </p>
+              </div>
 
-        {successMessage && (
-          <div style={{ color: 'green', marginBottom: '1rem' }}>{successMessage}</div>
-        )}
+              {formError && <div className="alert-error">{formError}</div>}
 
-        <button type="submit" disabled={mutation.isLoading}>
-          {mutation.isLoading ? 'Guardando...' : 'Guardar'}
-        </button>
-      </form>
+              {successMessage && (
+                <div className="alert-success">{successMessage}</div>
+              )}
+
+              <button
+                className="btn-primary"
+                type="submit"
+                disabled={mutation.isLoading}
+              >
+                {mutation.isLoading ? 'Guardando...' : 'Guardar'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

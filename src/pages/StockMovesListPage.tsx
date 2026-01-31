@@ -65,206 +65,250 @@ export function StockMovesListPage() {
   const data = rawData as StockMovesResponse | undefined;
 
   if (isLoading) {
-    return <div style={{ padding: '1rem' }}>Cargando movimientos...</div>;
+    return <div className="page-container">Cargando movimientos...</div>;
   }
 
   if (isError) {
     return (
-      <div style={{ padding: '1rem', color: 'red' }}>
-        Error al cargar movimientos:{' '}
-        {error instanceof Error ? error.message : 'Error desconocido'}
+      <div className="page-container">
+        <div className="alert-error">
+          Error al cargar movimientos:{' '}
+          {error instanceof Error ? error.message : 'Error desconocido'}
+        </div>
       </div>
     );
   }
 
   if (!data || data.items.length === 0) {
-    return <div style={{ padding: '1rem' }}>No hay movimientos.</div>;
+    return (
+      <div className="page-container">
+        <div className="page-header">
+          <div>
+            <h2 className="page-title">Movimientos de Inventario</h2>
+            <p className="page-subtitle">Revisa y filtra los movimientos registrados.</p>
+          </div>
+          <div className="page-actions">
+            <button
+              className="btn-secondary"
+              type="button"
+              onClick={() => {
+                logout();
+                navigate('/login', { replace: true });
+              }}
+            >
+              Salir
+            </button>
+          </div>
+        </div>
+        <div className="empty-state">
+          {/* Imagen de estado vacío, p.ej. public/images/inventory-empty.svg */}
+          <img src="/images/inventory-empty.svg" alt="Sin movimientos" />
+          <div>
+            <h3>No hay movimientos.</h3>
+            <p>Intenta ajustar los filtros o cargar nuevos datos de inventario.</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Movimientos de Inventario</h2>
-        <button
-          type="button"
-          onClick={() => {
-            logout();
-            navigate('/login', { replace: true });
-          }}
-        >
-          Salir
-        </button>
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Movimientos de Inventario</h2>
+          <p className="page-subtitle">
+            Consulta los movimientos registrados y filtra por producto, bodega y tipo.
+          </p>
+        </div>
+        <div className="page-actions">
+          <button
+            className="btn-secondary"
+            type="button"
+            onClick={() => {
+              logout();
+              navigate('/login', { replace: true });
+            }}
+          >
+            Salir
+          </button>
+        </div>
       </div>
-      
-      <form
-        style={{
-          display: 'flex',
-          gap: '1rem',
-          alignItems: 'flex-end',
-          marginTop: '1rem',
-          marginBottom: '1rem',
-        }}
-        onSubmit={(e) => e.preventDefault()}
-      >
-        <div>
-          <label>
-            Producto
-            <input
-              type="text"
-              value={productFilter}
-              onChange={(e) => {
-                const value = e.target.value;
-                setProductFilter(value);
-                setPage(1);
-                setSearchParams((prev) => {
-                  const params = new URLSearchParams(prev);
-                  params.set('page', '1');
-                  if (value) {
-                    params.set('product', value);
-                  } else {
-                    params.delete('product');
-                  }
-                  if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
-                  if (typeFilter) params.set('type', typeFilter); else params.delete('type');
-                  return params;
-                });
-              }}
-            />
-          </label>
+
+      <div className="layout-table card">
+        <form className="form-grid" onSubmit={(e) => e.preventDefault()}>
+          <div className="form-field">
+            <label className="form-label">
+              Producto
+              <input
+                className="form-input"
+                type="text"
+                value={productFilter}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setProductFilter(value);
+                  setPage(1);
+                  setSearchParams((prev) => {
+                    const params = new URLSearchParams(prev);
+                    params.set('page', '1');
+                    if (value) {
+                      params.set('product', value);
+                    } else {
+                      params.delete('product');
+                    }
+                    if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
+                    if (typeFilter) params.set('type', typeFilter); else params.delete('type');
+                    return params;
+                  });
+                }}
+              />
+            </label>
+          </div>
+
+          <div className="form-field">
+            <label className="form-label">
+              Bodega
+              <select
+                className="form-select"
+                value={warehouseFilter}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setWarehouseFilter(value);
+                  setPage(1);
+                  setSearchParams((prev) => {
+                    const params = new URLSearchParams(prev);
+                    params.set('page', '1');
+                    if (productFilter) params.set('product', productFilter); else params.delete('product');
+                    if (value) {
+                      params.set('warehouse', value);
+                    } else {
+                      params.delete('warehouse');
+                    }
+                    if (typeFilter) params.set('type', typeFilter); else params.delete('type');
+                    return params;
+                  });
+                }}
+              >
+                <option value="">Todas</option>
+                <option value="Bodega Norte">Bodega Norte</option>
+                <option value="Bodega Sur">Bodega Sur</option>
+                <option value="Bodega Central">Bodega Central</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="form-field">
+            <label className="form-label">
+              Tipo
+              <select
+                className="form-select"
+                value={typeFilter}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setTypeFilter(value);
+                  setPage(1);
+                  setSearchParams((prev) => {
+                    const params = new URLSearchParams(prev);
+                    params.set('page', '1');
+                    if (productFilter) params.set('product', productFilter); else params.delete('product');
+                    if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
+                    if (value) {
+                      params.set('type', value);
+                    } else {
+                      params.delete('type');
+                    }
+                    return params;
+                  });
+                }}
+              >
+                <option value="">Todos</option>
+                <option value="IN">IN</option>
+                <option value="OUT">OUT</option>
+                <option value="ADJUST">ADJUST</option>
+              </select>
+            </label>
+          </div>
+        </form>
+
+        <div className="table-wrapper">
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Bodega</th>
+                <th>Tipo</th>
+                <th className="numeric">Cantidad</th>
+                <th>Referencia</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.items.map((move) => (
+                <tr key={move.id}>
+                  <td>{move.date}</td>
+                  <td>{move.product}</td>
+                  <td>{move.warehouse}</td>
+                  <td>
+                    {move.type === 'IN' && <span className="chip-in">IN</span>}
+                    {move.type === 'OUT' && <span className="chip-out">OUT</span>}
+                    {move.type === 'ADJUST' && <span className="chip-adjust">ADJUST</span>}
+                  </td>
+                  <td className="numeric">{move.quantity}</td>
+                  <td>{move.reference}</td>
+                  <td>
+                    <Link to={`/stock-moves/${move.id}`}>Ver detalle</Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        <div>
-          <label>
-            Bodega
-            <select
-              value={warehouseFilter}
-              onChange={(e) => {
-                const value = e.target.value;
-                setWarehouseFilter(value);
-                setPage(1);
-                setSearchParams((prev) => {
-                  const params = new URLSearchParams(prev);
-                  params.set('page', '1');
-                  if (productFilter) params.set('product', productFilter); else params.delete('product');
-                  if (value) {
-                    params.set('warehouse', value);
-                  } else {
-                    params.delete('warehouse');
-                  }
-                  if (typeFilter) params.set('type', typeFilter); else params.delete('type');
-                  return params;
-                });
-              }}
-            >
-              <option value="">Todas</option>
-              <option value="Bodega Norte">Bodega Norte</option>
-              <option value="Bodega Sur">Bodega Sur</option>
-              <option value="Bodega Central">Bodega Central</option>
-            </select>
-          </label>
+        <div className="pagination">
+          <button
+            className="btn-secondary btn-sm"
+            type="button"
+            onClick={() => {
+              const newPage = Math.max(page - 1, 1);
+              setPage(newPage);
+              setSearchParams((prev) => {
+                const params = new URLSearchParams(prev);
+                params.set('page', String(newPage));
+                if (productFilter) params.set('product', productFilter); else params.delete('product');
+                if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
+                if (typeFilter) params.set('type', typeFilter); else params.delete('type');
+                return params;
+              });
+            }}
+            disabled={page === 1}
+          >
+            Anterior
+          </button>
+          <span>
+            Página {data.page} de {Math.ceil(data.total / data.pageSize)} ({data.total} registros)
+          </span>
+          <button
+            className="btn-secondary btn-sm"
+            type="button"
+            onClick={() => {
+              const totalPages = Math.ceil(data.total / data.pageSize);
+              const newPage = Math.min(page + 1, totalPages);
+              setPage(newPage);
+              setSearchParams((prev) => {
+                const params = new URLSearchParams(prev);
+                params.set('page', String(newPage));
+                if (productFilter) params.set('product', productFilter); else params.delete('product');
+                if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
+                if (typeFilter) params.set('type', typeFilter); else params.delete('type');
+                return params;
+              });
+            }}
+            disabled={data.items.length === 0 || data.page >= Math.ceil(data.total / data.pageSize)}
+          >
+            Siguiente
+          </button>
         </div>
-
-        <div>
-          <label>
-            Tipo
-            <select
-              value={typeFilter}
-              onChange={(e) => {
-                const value = e.target.value;
-                setTypeFilter(value);
-                setPage(1);
-                setSearchParams((prev) => {
-                  const params = new URLSearchParams(prev);
-                  params.set('page', '1');
-                  if (productFilter) params.set('product', productFilter); else params.delete('product');
-                  if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
-                  if (value) {
-                    params.set('type', value);
-                  } else {
-                    params.delete('type');
-                  }
-                  return params;
-                });
-              }}
-            >
-              <option value="">Todos</option>
-              <option value="IN">IN</option>
-              <option value="OUT">OUT</option>
-              <option value="ADJUST">ADJUST</option>
-            </select>
-          </label>
-        </div>
-      </form>
-
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-        <thead>
-          <tr>
-            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Fecha</th>
-            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Producto</th>
-            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Bodega</th>
-            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Tipo</th>
-            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'right' }}>Cantidad</th>
-            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Referencia</th>
-            <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.items.map((move) => (
-            <tr key={move.id}>
-              <td>{move.date}</td>
-              <td>{move.product}</td>
-              <td>{move.warehouse}</td>
-              <td>{move.type}</td>
-              <td style={{ textAlign: 'right' }}>{move.quantity}</td>
-              <td>{move.reference}</td>
-              <td>
-                <Link to={`/stock-moves/${move.id}`}>Ver detalle</Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <button
-          type="button"
-          onClick={() => {
-            const newPage = Math.max(page - 1, 1);
-            setPage(newPage);
-            setSearchParams((prev) => {
-              const params = new URLSearchParams(prev);
-              params.set('page', String(newPage));
-              if (productFilter) params.set('product', productFilter); else params.delete('product');
-              if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
-              if (typeFilter) params.set('type', typeFilter); else params.delete('type');
-              return params;
-            });
-          }}
-          disabled={page === 1}
-        >
-          Anterior
-        </button>
-        <span>
-          Página {data.page} de {Math.ceil(data.total / data.pageSize)} ({data.total} registros)
-        </span>
-        <button
-          type="button"
-          onClick={() => {
-            const totalPages = Math.ceil(data.total / data.pageSize);
-            const newPage = Math.min(page + 1, totalPages);
-            setPage(newPage);
-            setSearchParams((prev) => {
-              const params = new URLSearchParams(prev);
-              params.set('page', String(newPage));
-              if (productFilter) params.set('product', productFilter); else params.delete('product');
-              if (warehouseFilter) params.set('warehouse', warehouseFilter); else params.delete('warehouse');
-              if (typeFilter) params.set('type', typeFilter); else params.delete('type');
-              return params;
-            });
-          }}
-          disabled={data.items.length === 0 || data.page >= Math.ceil(data.total / data.pageSize)}
-        >
-          Siguiente
-        </button>
       </div>
     </div>
   );

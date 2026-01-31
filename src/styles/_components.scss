@@ -1,0 +1,258 @@
+@use "./variables" as v;
+@use "./mixins" as m;
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.btn-primary {
+  @extend .btn;
+  background-color: v.$color-primary;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+
+  &:hover {
+    background-color: v.$color-primary-dark;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+    box-shadow: none;
+  }
+}
+
+.btn-secondary {
+  @extend .btn;
+  background-color: #fff;
+  color: v.$color-text-main;
+  border-color: v.$color-border;
+
+  &:hover {
+    background-color: #f3f4f6;
+  }
+}
+
+.btn-link {
+  @extend .btn;
+  border-color: transparent;
+  background-color: transparent;
+  padding-left: 0;
+  width: 100%;
+  max-width: max-content;
+  margin: 0 auto;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: v.$spacing-md;
+
+  @include m.respond-md {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+  font-size: 0.9rem;
+}
+
+.form-label {
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-input,
+.form-select {
+  border-radius: 0.5rem;
+  border: 1px solid v.$color-border;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+
+  &:focus {
+    border-color: v.$color-primary;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.35);
+  }
+
+  &:disabled {
+    background-color: #e5e7eb;
+    cursor: not-allowed;
+  }
+}
+
+.form-error {
+  color: v.$color-error;
+  font-size: 0.85rem;
+}
+
+.form-help {
+  color: v.$color-text-muted;
+  font-size: 0.8rem;
+}
+
+.alert {
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.alert-error {
+  @extend .alert;
+  background-color: #fee2e2;
+  color: v.$color-error;
+  border: 1px solid #fecaca;
+}
+
+.alert-success {
+  @extend .alert;
+  background-color: #dcfce7;
+  color: v.$color-success;
+  border: 1px solid #bbf7d0;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: v.$spacing-md;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+  font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid v.$color-border;
+}
+
+.table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+.table td.numeric {
+  text-align: right;
+}
+
+.table-striped tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.chip-in {
+  @extend .chip;
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.chip-out {
+  @extend .chip;
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.chip-adjust {
+  @extend .chip;
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$spacing-sm;
+  font-size: 0.85rem;
+  color: v.$color-text-muted;
+}
+
+.meta-item strong {
+  margin-right: 0.25rem;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: v.$spacing-xl;
+
+  @include m.respond-lg {
+    grid-template-columns: 1.2fr 1fr;
+    align-items: flex-start;
+  }
+}
+
+.detail-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: v.$spacing-sm;
+}
+
+.empty-state {
+  padding: v.$spacing-xl 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: v.$spacing-md;
+  color: v.$color-text-muted;
+}
+
+.empty-state img {
+  max-width: 260px;
+  width: 100%;
+  height: auto;
+}
+
+.pagination {
+  margin-top: v.$spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$spacing-md;
+  flex-wrap: wrap;
+}
